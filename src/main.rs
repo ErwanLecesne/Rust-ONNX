@@ -20,6 +20,7 @@ fn main() {
     let dims = volume.shape();
     for v in dims.iter() {
         println!("input shape {:?}",v);
+    
     }
     
 
@@ -37,8 +38,6 @@ fn main() {
 
     volume = (volume - mean) / std; //Znormalization
 
-  
- 
 
     let model = tract_onnx::onnx()
     // load the model
