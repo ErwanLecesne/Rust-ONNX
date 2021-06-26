@@ -1,0 +1,13 @@
+[package]
+name = "rust_onnx"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ndarray = "0.15.0"
+num-complex = "0.3"
+nifti = "0.14.0"
+image = "*"
+tract-onnx = "0.15.0"
