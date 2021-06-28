@@ -4,31 +4,55 @@ use std::time::SystemTime;
 use nifti::{NiftiObject, ReaderOptions, writer, InMemNiftiObject, NiftiVolume,IntoNdArray};
 //use tract_ndarray::Array;
 use tract_onnx::prelude::*;
+use std::io;
+use std::env;
+use std::path::Path;
+use std::path::PathBuf;
 
 fn main() {
 
 
-    let start = SystemTime::now();
+    
+    let mut str_buf = String::new();
+    let current_dir = env::current_dir().unwrap();
+    println!("Your current dir is : {}\n",current_dir.display());
 
+    println!("Enter the file path.(ex: /folder1/folder2/myfile.nii)\n ");
+    io::stdin().read_line(&mut str_buf).unwrap();
+    
+    let image_str = str_buf.trim().to_owned();
+    let image_path = Path::new(&image_str);
+   
+    let output_path = Path::new(&image_str).parent().unwrap().join("output.nii");
+
+    let mut niiwriter = writer::WriterOptions::new(&output_path);
+
+    println!("OutPut dir : {}\n",output_path.display());
+
+    
+    println!("Enter the ONNX path. ex: /folder1/folder2/myfile.onnx)\n ");
+    io::stdin().read_line(&mut str_buf).unwrap();
+    let onnx_str = str_buf.trim().to_owned();
+    let onnx_path = Path::new(&onnx_str);
 
     let reader = ReaderOptions::new();
 
-    let image = reader.read_file("/home/erwan/Téléchargements/acdc128.nii").unwrap();
+    let image = reader.read_file(&image_path).unwrap();
     //use obj
-    //let header = image.header();
+    let header = image.header();
     let mut volume = image.into_volume().into_ndarray::<f32>().unwrap();
     let dims = volume.shape();
     for v in dims.iter() {
         println!("input shape {:?}",v);
     
     }
+   
+
+    //
+    //let mut write = niiwriter.write_nifti(&volume);
     
-
-    let mut niiwriter = writer::WriterOptions::new("/home/erwan/Téléchargements/input.nii");
-    let mut write = niiwriter.write_nifti(&volume);
-    
-
-
+/*
+    let start = SystemTime::now();
     volume.swap_axes(0, 3); 
     volume.swap_axes(1, 2); 
     volume.swap_axes(0, 1); //(B,C,H,W)
@@ -41,16 +65,13 @@ fn main() {
 
     let model = tract_onnx::onnx()
     // load the model
-    .model_for_path("/home/erwan/Téléchargements/dcunet_soft.onnx").unwrap()
+    .model_for_path(&onnx_path.trim().to_string()).unwrap()
     // specify input type and shape
     .with_input_fact(0, InferenceFact::dt_shape(f32::datum_type(), tvec!(16, 1, 128, 128))).unwrap()
     // optimize the model
     .into_optimized().unwrap()
     // make the model runnable and fix its inputs and outputs
     .into_runnable().unwrap();
-
-
-
     
 
     //let vol = Array4::<f32>::ones((16, 1, 128, 128));
@@ -86,6 +107,6 @@ fn main() {
     let end = SystemTime::now();
     let difference = end.duration_since(start);
     println!("time to make it {:?}",difference);  
-    
+ */   
    
 }
