@@ -39,9 +39,9 @@ fn main() {
 
     let image = reader.read_file(&image_path).unwrap();
     //use obj
-    let header = image.header();
+    let _header = image.header();
     let mut volume = image.into_volume().into_ndarray::<f32>().unwrap();
-    let dims = volume.shape();
+    let _dims = volume.shape();
     /*
     for v in dims.iter() {
         println!("input shape {:?}",v);
@@ -71,16 +71,16 @@ fn main() {
     .into_runnable().unwrap();
     
 
-    //let vol = Array4::<f32>::ones((16, 1, 128, 128));
+    //to make a test => let image = Array4::<f32>::ones((16, 1, 128, 128));
     let image: Tensor = volume.into(); //
 
     let result = model.run(tvec!(image)).unwrap(); // make the inference 
     
-    let prediction = (*result[0]).clone().into_array::<i64>().unwrap();
-    let mut casted = prediction.map(|&e| e as f32);
+    let prediction = (*result[0]).clone().into_array::<i64>().unwrap();// should modify that Pytorch return always f32
+    let mut casted = prediction.map(|&e| e as f32);//so i have to cast it in f32
 
 
-    let dims_res = prediction.shape();
+    let _dims_res = prediction.shape();
 /*
     
     for v in dims_res.iter() {
@@ -92,7 +92,7 @@ fn main() {
 
     
 
-    let dims_pred= casted.shape();
+    let _dims_pred = casted.shape();
 /*
     for v in dims_pred.iter() {
         println!("prediction shape  {:?}",v);
@@ -102,7 +102,7 @@ fn main() {
     let _wrote = niiwriter.write_nifti(&casted);
 
     let end = SystemTime::now();
-    let mut difference = end.duration_since(start);
+    let difference = end.duration_since(start);
     println!("time to make it {:?}",difference);  
    
 
