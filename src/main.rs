@@ -11,29 +11,14 @@ use std::path::PathBuf;
 use ferris_says::*;
 
 fn main() {
+    let args: Vec<String> = std::env::args().collect();
+    let  image_path = Path::new(&args[2]);
+    let  onnx_path = Path::new(&args[1]);
+    //println!("argument : {}\n",image_path.display());
 
-
-    
-    let mut str_buf = String::new();
-    let current_dir = env::current_dir().unwrap();
-    println!("Your current dir is : {}\n",current_dir.display());
-
-    println!("Enter the file path.(ex: /folder1/folder2/myfile.nii)\n ");
-    io::stdin().read_line(&mut str_buf).unwrap(); 
-    let image_str = str_buf.trim().to_owned();
-    let image_path = Path::new(&image_str);
-   
-    let output_path = Path::new(&image_str).parent().unwrap().join("output.nii");
+    let output_path = Path::new(&args[2]).parent().unwrap().join("output.nii");
     let mut niiwriter = writer::WriterOptions::new(&output_path);
     println!("OutPut dir : {}\n",output_path.display());
-
-    
-    println!("Enter the ONNX path. ex: /folder1/folder2/myfile.onnx)\n ");
-
-    str_buf = String::new();
-    io::stdin().read_line(&mut str_buf).unwrap();
-    let onnx_str = str_buf.trim().to_owned();
-    let onnx_path = Path::new(&onnx_str);
 
     let reader = ReaderOptions::new();
 
