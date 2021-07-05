@@ -10,7 +10,7 @@ use std::io;
 use std::path::Path;
 use ferris_says::*;
 use rayon::prelude::*;
-
+use std::ffi::OsStr;
 
 //#[macro_use(s)]
 
@@ -18,9 +18,18 @@ use rayon::prelude::*;
 fn main() {
     let start = SystemTime::now();
     let args: Vec<String> = std::env::args().collect();
+
     let  image_path = Path::new(&args[2]);
+    let mut ext: Option<&str> = Some("nii");
+    let mut input_ext: Option<&str> = image_path.extension().and_then(OsStr::to_str);
+    assert_eq!(ext,input_ext);
+
     let  onnx_path = Path::new(&args[1]);
-    //println!("argument : {}\n",image_path.display());
+    ext = Some("onnx");
+    input_ext = onnx_path.extension().and_then(OsStr::to_str);
+    assert_eq!(ext,input_ext);
+ 
+   
 
     let output_path = Path::new(&args[2]).parent().unwrap().join("output.nii");
     let mut niiwriter = writer::WriterOptions::new(&output_path);
@@ -71,9 +80,9 @@ fn main() {
    
     for slice in volume.axis_iter(Axis(0)){ 
 
-        vecslices.push(tvec!((slice.to_owned()
+        vecslices.push(tvec!(slice.to_owned()
         .insert_axis(Axis(0))
-        .into())));
+        .into()));
     }
     
     let pred_vec: Vec<_> = vecslices
@@ -93,21 +102,7 @@ fn main() {
         i += 1;
     }
  
-
-   // for v in ds.iter() {
-    //    println!("prediction shape  {:?}",v);
-   // }
-
-
     let mut casted = prediction.map(|&e| e as f32);//so i have to cast it in f32
-
-
-    // let dims_res = prediction.shape();
-
-    
-    // for v in dims_res.iter() {
-    //     println!("output shape {:?}",v);
-    // }
 
 
     casted.swap_axes(0, 2);
