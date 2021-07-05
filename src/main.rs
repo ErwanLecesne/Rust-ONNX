@@ -41,36 +41,36 @@ fn main() {
     //use obj
     let _header = image.header();
     let mut volume = image.into_volume().into_ndarray::<f32>().unwrap();
-    let dims = volume.shape();
+    let input_shape = volume.shape().to_owned();
     
-    for v in dims.iter() {
+    for v in input_shape.iter() {
         println!("input shape {:?}",v);
     
     }
    
     
-    volume.swap_axes(0, 3); 
-    volume.swap_axes(1, 2); 
-    volume.swap_axes(0, 1); //(B,C,H,W)
+    volume.swap_axes(1, 3);
+    volume.swap_axes(0, 2); //(B,C,H,W)
+   
     let mean = volume.sum() / volume.len() as f32;
     let std = volume.std(0.);
 
     volume = (volume - mean) / std; //Znormalization
 
-    // let dim_volume = volume.shape();
+    let dim_volume = volume.shape();
 
 
-    // for v in dim_volume.iter() {
-    //     println!("Volume {:?}",v);
+    for v in dim_volume.iter() {
+        println!("Volume {:?}",v);
     
-    // }
+    }
 
-
+      
     let model = tract_onnx::onnx()
     // load the model
     .model_for_path(onnx_path).unwrap()
     // specify input type and shape
-    .with_input_fact(0, InferenceFact::dt_shape(f32::datum_type(), tvec!(1, 1, 128, 128))).unwrap()
+    .with_input_fact(0, InferenceFact::dt_shape(f32::datum_type(), tvec!(1, 1, input_shape[0], input_shape[1]))).unwrap()
     // optimize the model
     .into_optimized().unwrap()
     // make the model runnable and fix its inputs and outputs
@@ -92,7 +92,7 @@ fn main() {
     .collect();
 
 
-   let mut prediction = Array3::<i64>::zeros((16,128,128)); 
+    let mut prediction = Array3::<i64>::zeros((input_shape[2],input_shape[0],input_shape[1])); 
     let mut i :u8 = 0;
     
     for slice in pred_vec.iter(){   
@@ -106,16 +106,8 @@ fn main() {
 
 
     casted.swap_axes(0, 2);
-    // casted = casted.insert_axis(Axis(3));
-
-    
-
-    // let dims_pred = casted.shape();
-
-    // for v in dims_pred.iter() {
-    //     println!("prediction shape  {:?}",v);
-    // }
-   
+    casted.swap_axes(0, 1);
+ 
     niiwriter = writer::WriterOptions::new(output_path);
     let _wrote = niiwriter.write_nifti(&casted);
 
@@ -133,5 +125,7 @@ fn main() {
 
     let mut writer = io::BufWriter::new(stdout.lock());
     say(out, width, &mut writer).unwrap();
+
+   
 
 }
